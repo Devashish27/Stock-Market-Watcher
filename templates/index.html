@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stock Watchlist</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+  </head>
+  <body>
+    {% with messages= get_flashed_messages(with_categories=True) %} 
+    {% if messages %} 
+    {% for category, message in messages %}
+    <div class="flash {{category}}">
+        {{message}}
+    </div>
+    {% endfor %} 
+    {% endif %} 
+    {% endwith %}
+
+    <form action="{{ url_for('index') }}" method="POST">
+      <label for="ticker">Enter Ticker Symbol: </label>
+      <input type="text" name="ticker" id="ticker" required />
+      <input type="submit" value="Add Ticker" />
+    </form>
+
+    {% if stocks %}
+    <table>
+      <thead>
+        <tr>
+          <th>Ticker</th>
+          <th>Last</th>
+          <th>Date / Time</th>
+          <th>Change</th>
+          <th>Change %</th>
+          <th>High</th>
+          <th>Low</th>
+          <th>Volume</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for stock in stocks %}
+        <tr>
+          <td>{{ stock.ticker }}</td>
+          <td>{{ stock.price }}</td>
+          <td>{{ stock.date_time }}</td>
+          <td
+            class="{{ 'positive' if stock.change > 0 else 'negative' if stock.change < 0 else ' ' }}"
+          > {{ '$%.2f' % stock.change }}
+          </td>
+          <td
+            class="{{ 'positive' if stock.change_pct > 0 else 'negative' if stock.change_pct < 0 else ' ' }}"
+          > {{ '$%.2f%%' % stock.change_pct }}
+          </td>
+
+          <td>{{ stock.high }}</td>
+          <td>{{ stock.low }}</td>
+          <td>{{ stock.volume }}</td>
+          <td>
+            <a href="{{ url_for('remove', ticker=stock.ticker) }}">Remove</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+        <p>No tickers in list.</p>
+    {% endif %}
+  </body>
+</html>
